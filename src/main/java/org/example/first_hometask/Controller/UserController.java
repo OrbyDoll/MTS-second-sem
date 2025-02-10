@@ -1,6 +1,6 @@
-package org.example.first_hometask.Controllers;
+package org.example.first_hometask.Controller;
 
-import org.example.first_hometask.Services.UserService;
+import org.example.first_hometask.Service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

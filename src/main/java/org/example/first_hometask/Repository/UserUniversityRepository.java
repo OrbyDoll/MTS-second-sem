@@ -1,6 +1,6 @@
-package org.example.first_hometask.Repositories;
+package org.example.first_hometask.Repository;
 
-import org.example.first_hometask.Objects.UserUniversity;
+import org.example.first_hometask.Model.UserUniversity;
 import java.util.List;
 
 public interface UserUniversityRepository {

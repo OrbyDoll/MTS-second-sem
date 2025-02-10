@@ -1,6 +1,6 @@
-package org.example.first_hometask.Repositories;
+package org.example.first_hometask.Repository;
 
-import org.example.first_hometask.Objects.User;
+import org.example.first_hometask.Model.User;
 import java.util.List;
 import java.util.Optional;
 

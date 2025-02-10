@@ -1,8 +1,8 @@
-package org.example.first_hometask.Services;
+package org.example.first_hometask.Service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.first_hometask.Objects.UserCourse;
-import org.example.first_hometask.Repositories.UserCourseRepository;
+import org.example.first_hometask.Model.UserCourse;
+import org.example.first_hometask.Repository.UserCourseRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

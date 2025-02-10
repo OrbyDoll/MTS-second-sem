@@ -1,6 +1,6 @@
-package org.example.first_hometask.Repositories;
+package org.example.first_hometask.Repository;
 
-import org.example.first_hometask.Objects.UserBook;
+import org.example.first_hometask.Model.UserBook;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
