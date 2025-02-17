@@ -1,2 +1,5 @@
+spring:
+  application:
+    name: spring-with-openapi
 server:
   port: 8080
