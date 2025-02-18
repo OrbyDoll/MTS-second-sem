@@ -6,8 +6,8 @@ import org.example.first_hometask.exception.BookNotFoundException;
 import org.example.first_hometask.exception.UserNotFoundException;
 import org.example.first_hometask.model.UserBook;
 import org.example.first_hometask.model.BookId;
-import org.example.first_hometask.repository.UserBookRepository;
-import org.example.first_hometask.repository.UserRepository;
+import org.example.first_hometask.repository.UserBooksRepository;
+import org.example.first_hometask.repository.UsersRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,9 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 @Service
 @Slf4j
-public class UserBookService {
-  private final UserBookRepository userBookRepository;
-  private final UserRepository userRepository;
+public class UserBooksService {
+  private final UserBooksRepository userBookRepository;
+  private final UsersRepository userRepository;
 
   public List<UserBook> getAllBooks() {
     log.info("Получение всех книг");

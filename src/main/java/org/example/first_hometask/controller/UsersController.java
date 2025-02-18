@@ -27,7 +27,7 @@ import java.util.List;
 
 @RequestMapping("/api/users")
 @Tag(name = "User API", description = "Управление пользователями")
-public interface UserControllerInterface {
+public interface UsersController {
 
   @Operation(summary = "Получить всех пользователей")
   @ApiResponses(value = {

@@ -6,7 +6,7 @@ import org.example.first_hometask.model.UserId;
 import org.example.first_hometask.request.User.UserCreateRequest;
 import org.example.first_hometask.request.User.UserPatchRequest;
 import org.example.first_hometask.request.User.UserPutRequest;
-import org.example.first_hometask.service.UserService;
+import org.example.first_hometask.service.UsersService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,8 +15,8 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-public class UserController implements UserControllerInterface {
-  private final UserService userService;
+public class UsersControllerImpl implements UsersController {
+  private final UsersService userService;
 
   @Override
   public ResponseEntity<List<User>> getAllUsers() {

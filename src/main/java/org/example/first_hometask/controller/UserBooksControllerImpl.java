@@ -6,7 +6,7 @@ import org.example.first_hometask.model.BookId;
 import org.example.first_hometask.request.Book.BookCreateRequest;
 import org.example.first_hometask.request.Book.BookPatchRequest;
 import org.example.first_hometask.request.Book.BookPutRequest;
-import org.example.first_hometask.service.UserBookService;
+import org.example.first_hometask.service.UserBooksService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,8 +15,8 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-public class UserBookControllerImpl implements UserBookController {
-  private final UserBookService userBookService;
+public class UserBooksControllerImpl implements UserBooksController {
+  private final UserBooksService userBookService;
 
   @Override
   public ResponseEntity<List<UserBook>> getAllBooks() {

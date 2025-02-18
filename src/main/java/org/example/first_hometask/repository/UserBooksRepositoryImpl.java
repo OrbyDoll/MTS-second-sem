@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
-public class UserBookRepositoryImpl implements UserBookRepository {
+public class UserBooksRepositoryImpl implements UserBooksRepository {
   private final Map<BookId, UserBook> userBooks = new ConcurrentHashMap<>();
   private final AtomicLong idCounter = new AtomicLong(1);
 

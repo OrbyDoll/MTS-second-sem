@@ -27,7 +27,7 @@ import java.util.List;
 
 @RequestMapping("/api/books")
 @Tag(name = "Books API", description = "Управление книгами пользователей")
-public interface UserBookController {
+public interface UserBooksController {
 
   @Operation(summary = "Получить все книги")
   @ApiResponses(value = {

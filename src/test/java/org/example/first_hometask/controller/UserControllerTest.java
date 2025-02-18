@@ -3,7 +3,7 @@ package org.example.first_hometask.controller;
 import org.example.first_hometask.exception.UserNotFoundException;
 import org.example.first_hometask.model.User;
 import org.example.first_hometask.model.UserId;
-import org.example.first_hometask.service.UserService;
+import org.example.first_hometask.service.UsersService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,13 +22,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(UserControllerInterface.class)
+@WebMvcTest(UsersController.class)
 public class UserControllerTest {
   @Autowired
   private MockMvc mvc;
 
   @MockitoBean
-  private UserService userService;
+  private UsersService userService;
 
   @Test
   public void getAllUsersTest() throws Exception {

@@ -6,7 +6,7 @@ import org.example.first_hometask.model.BookId;
 import java.util.List;
 import java.util.Optional;
 
-public interface UserBookRepository {
+public interface UserBooksRepository {
   List<UserBook> findAll();
   Optional<UserBook> findByBookId(BookId userBookId);
   BookId create(UserBook book);

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.first_hometask.exception.UserNotFoundException;
 import org.example.first_hometask.model.User;
 import org.example.first_hometask.model.UserId;
-import org.example.first_hometask.repository.UserRepository;
+import org.example.first_hometask.repository.UsersRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,8 +13,8 @@ import java.util.List;
 @AllArgsConstructor
 @Service
 @Slf4j
-public class UserService {
-  private final UserRepository userRepository;
+public class UsersService {
+  private final UsersRepository userRepository;
 
   public List<User> getAllUsers() {
     log.info("Получение всех пользователей");

@@ -70,5 +70,8 @@ public class EndToEndTest {
         restTemplate.getForEntity("http://localhost:" + port + "/api/users/2", User.class);
     assertEquals(HttpStatus.OK, getUser2DataResponse.getStatusCode());
     assertEquals(updatedBook, getUser2DataResponse.getBody().getBooks().get(0));
+
+    restTemplate.delete("http://localhost" + port + "/api/books/1", updatedBook);
+    assertEquals(new ArrayList<>(), getUser2DataResponse.getBody().getBooks());
   }
 }

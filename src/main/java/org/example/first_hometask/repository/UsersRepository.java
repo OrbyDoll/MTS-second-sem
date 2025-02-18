@@ -6,7 +6,7 @@ import org.example.first_hometask.model.UserId;
 import java.util.List;
 import java.util.Optional;
 
-public interface UserRepository {
+public interface UsersRepository {
   List<User> findAll();
   Optional<User> findById(UserId userId);
   UserId create(User user);
