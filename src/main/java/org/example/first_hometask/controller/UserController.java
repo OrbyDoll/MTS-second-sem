@@ -1,23 +1,21 @@
-package org.example.first_hometask.Controller.Implementation;
+package org.example.first_hometask.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.first_hometask.Controller.Interface.UserController;
-import org.example.first_hometask.Model.User;
-import org.example.first_hometask.Model.UserId;
-import org.example.first_hometask.Request.User.UserCreateRequest;
-import org.example.first_hometask.Request.User.UserPatchRequest;
-import org.example.first_hometask.Request.User.UserPutRequest;
-import org.example.first_hometask.Service.UserService;
+import org.example.first_hometask.model.User;
+import org.example.first_hometask.model.UserId;
+import org.example.first_hometask.request.User.UserCreateRequest;
+import org.example.first_hometask.request.User.UserPatchRequest;
+import org.example.first_hometask.request.User.UserPutRequest;
+import org.example.first_hometask.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/users")
-public class UserControllerImpl implements UserController {
+public class UserController implements UserControllerInterface {
   private final UserService userService;
 
   @Override
@@ -33,7 +31,7 @@ public class UserControllerImpl implements UserController {
   @Override
   public ResponseEntity<UserId> createUser(UserCreateRequest user) {
     User castedUser = new User(user.getId(), user.getFirstName(), user.getSecondName(), user.getAge(), user.getBooks());
-    return ResponseEntity.ok(userService.createUser(castedUser));
+    return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(castedUser));
   }
 
   @Override

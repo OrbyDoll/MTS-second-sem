@@ -1,8 +1,7 @@
-package org.example.first_hometask.Repository.Implementation;
+package org.example.first_hometask.repository;
 
-import org.example.first_hometask.Model.User;
-import org.example.first_hometask.Model.UserId;
-import org.example.first_hometask.Repository.Interface.UserRepository;
+import org.example.first_hometask.model.User;
+import org.example.first_hometask.model.UserId;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;

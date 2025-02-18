@@ -1,7 +1,7 @@
-package org.example.first_hometask.Repository.Interface;
+package org.example.first_hometask.repository;
 
-import org.example.first_hometask.Model.UserBook;
-import org.example.first_hometask.Model.BookId;
+import org.example.first_hometask.model.UserBook;
+import org.example.first_hometask.model.BookId;
 
 import java.util.List;
 import java.util.Optional;

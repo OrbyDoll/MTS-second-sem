@@ -1,11 +1,11 @@
-package org.example.first_hometask.Service;
+package org.example.first_hometask.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.first_hometask.Exception.UserNotFoundException;
-import org.example.first_hometask.Model.User;
-import org.example.first_hometask.Model.UserId;
-import org.example.first_hometask.Repository.Interface.UserRepository;
+import org.example.first_hometask.exception.UserNotFoundException;
+import org.example.first_hometask.model.User;
+import org.example.first_hometask.model.UserId;
+import org.example.first_hometask.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

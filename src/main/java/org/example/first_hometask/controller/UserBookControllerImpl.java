@@ -1,22 +1,20 @@
-package org.example.first_hometask.Controller.Implementation;
+package org.example.first_hometask.controller;
 
 import lombok.AllArgsConstructor;
-import org.example.first_hometask.Controller.Interface.UserBookController;
-import org.example.first_hometask.Model.UserBook;
-import org.example.first_hometask.Model.BookId;
-import org.example.first_hometask.Request.Book.BookCreateRequest;
-import org.example.first_hometask.Request.Book.BookPatchRequest;
-import org.example.first_hometask.Request.Book.BookPutRequest;
-import org.example.first_hometask.Service.UserBookService;
+import org.example.first_hometask.model.UserBook;
+import org.example.first_hometask.model.BookId;
+import org.example.first_hometask.request.Book.BookCreateRequest;
+import org.example.first_hometask.request.Book.BookPatchRequest;
+import org.example.first_hometask.request.Book.BookPutRequest;
+import org.example.first_hometask.service.UserBookService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/books")
 public class UserBookControllerImpl implements UserBookController {
   private final UserBookService userBookService;
 
@@ -33,7 +31,7 @@ public class UserBookControllerImpl implements UserBookController {
   @Override
   public ResponseEntity<BookId> createBook(BookCreateRequest book) {
     UserBook castedBook = new UserBook(book.getId(), book.getTitle(), book.getUserId());
-    return ResponseEntity.ok(userBookService.createBook(castedBook));
+    return ResponseEntity.status(HttpStatus.CREATED).body(userBookService.createBook(castedBook));
   }
 
   @Override

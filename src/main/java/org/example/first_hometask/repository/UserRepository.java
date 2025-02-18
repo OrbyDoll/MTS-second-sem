@@ -1,7 +1,7 @@
-package org.example.first_hometask.Repository.Interface;
+package org.example.first_hometask.repository;
 
-import org.example.first_hometask.Model.User;
-import org.example.first_hometask.Model.UserId;
+import org.example.first_hometask.model.User;
+import org.example.first_hometask.model.UserId;
 
 import java.util.List;
 import java.util.Optional;
