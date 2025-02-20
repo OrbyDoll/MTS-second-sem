@@ -19,11 +19,12 @@ public class LoggingAspect {
   }
 
   @Around("execution( * org.example.first_hometask.controller.*.*( .. ))")
-  public void measureExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
+  public Object measureExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
     Instant startTime = Instant.now();
-    joinPoint.proceed();
+    Object result = joinPoint.proceed();
     Instant endTime = Instant.now();
     System.out.println("Время исполнения метода " + joinPoint.getSignature().getName() + " равно " +
         Duration.between(startTime, endTime).toMillis() + " ms");
+    return result;
   }
 }
