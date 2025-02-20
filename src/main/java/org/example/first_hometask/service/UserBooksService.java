@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.first_hometask.exception.BookNotFoundException;
 import org.example.first_hometask.exception.UserNotFoundException;
+import org.example.first_hometask.model.User;
 import org.example.first_hometask.model.UserBook;
 import org.example.first_hometask.model.BookId;
+import org.example.first_hometask.model.UserId;
 import org.example.first_hometask.repository.UserBooksRepository;
 import org.example.first_hometask.repository.UsersRepository;
 import org.springframework.stereotype.Service;
@@ -88,6 +90,11 @@ public class UserBooksService {
 
   public void deleteBook(BookId bookId) {
     log.info("Удаление книги с ID: {}", bookId.toString());
+    UserBook desiredBook = userBookRepository.findByBookId(bookId).get();
+    User desiredUser = userRepository.findById(desiredBook.getUserId()).get();
+    List<UserBook> newUserBooks = desiredUser.getBooks();
+    newUserBooks.remove(desiredBook);
+    desiredUser.setBooks(newUserBooks);
     userBookRepository.deleteById(bookId);
   }
 }

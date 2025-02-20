@@ -1,10 +1,12 @@
 package org.example.first_hometask.E2E;
 
+import org.example.first_hometask.Application;
 import org.example.first_hometask.model.BookId;
 import org.example.first_hometask.model.User;
 import org.example.first_hometask.model.UserBook;
 import org.example.first_hometask.model.UserId;
 import org.example.first_hometask.request.Book.BookPatchRequest;
+import org.example.first_hometask.security.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +17,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
@@ -23,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(classes={Application.class, SecurityConfig.class})
 @ActiveProfiles("test")
 public class EndToEndTest {
   @LocalServerPort
@@ -71,7 +75,8 @@ public class EndToEndTest {
     assertEquals(HttpStatus.OK, getUser2DataResponse.getStatusCode());
     assertEquals(updatedBook, getUser2DataResponse.getBody().getBooks().get(0));
 
-    restTemplate.delete("http://localhost" + port + "/api/books/1", updatedBook);
+    restTemplate.delete("http://localhost:" + port + "/api/books/1", updatedBook);
+    getUser2DataResponse = restTemplate.getForEntity("http://localhost:" + port + "/api/users/2", User.class);
     assertEquals(new ArrayList<>(), getUser2DataResponse.getBody().getBooks());
   }
 }

@@ -1,14 +1,17 @@
 package org.example.first_hometask.controller;
 
+import org.example.first_hometask.Application;
 import org.example.first_hometask.exception.UserNotFoundException;
 import org.example.first_hometask.model.User;
 import org.example.first_hometask.model.UserId;
+import org.example.first_hometask.security.SecurityConfig;
 import org.example.first_hometask.service.UsersService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(UsersController.class)
+@ContextConfiguration(classes={Application.class, SecurityConfig.class})
 public class UserControllerTest {
   @Autowired
   private MockMvc mvc;
