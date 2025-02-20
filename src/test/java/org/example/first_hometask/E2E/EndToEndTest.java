@@ -1,7 +1,5 @@
 package org.example.first_hometask.E2E;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.example.first_hometask.model.BookId;
 import org.example.first_hometask.model.User;
 import org.example.first_hometask.model.UserBook;
@@ -20,6 +18,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

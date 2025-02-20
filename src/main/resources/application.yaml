@@ -1,9 +1,24 @@
 spring:
   application:
-    name: spring-with-openapi
+    name: spring-with-actuator-security-aop
+  security:
+    user:
+      name: admin
+      password: secret
 springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
 server:
   port: 8080
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+        exclude: shutdown
+      base-path: /admin/actuator
+  prometheus:
+    metrics:
+      export:
+        enabled: true
