@@ -1,5 +1,5 @@
 spring:
   application:
-    name: spring-with-openapi-test
+    name: spring-test
 server:
-  port: 8082
+  port: 8081

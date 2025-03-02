@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RequestMapping("/api/books")
 @Tag(name = "Books API", description = "Управление книгами пользователей")
@@ -39,7 +40,7 @@ public interface UserBooksController {
           })
   })
   @GetMapping("/")
-  ResponseEntity<List<UserBook>> getAllBooks();
+  CompletableFuture<ResponseEntity<List<UserBook>>> getAllBooks();
 
   @Operation(summary = "Получить книгу по ID")
   @ApiResponses(value = {
