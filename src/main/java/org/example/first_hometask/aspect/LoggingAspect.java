@@ -18,7 +18,7 @@ public class LoggingAspect {
   @Before("execution( * org.example.first_hometask.controller.*.*( .. ))")
   public void logBefore(JoinPoint joinPoint) {
     System.out.println("Вызвано перед методом: " + joinPoint.getSignature().getName());
-    counter++; // Увеличиваем счетчик перед вызовом метода
+    counter++;
   }
 
   @Around("execution( * org.example.first_hometask.controller.*.*( .. ))")
