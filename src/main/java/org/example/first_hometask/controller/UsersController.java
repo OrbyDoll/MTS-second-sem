@@ -1,6 +1,7 @@
 package org.example.first_hometask.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,11 +33,11 @@ public interface UsersController {
   @Operation(summary = "Получить всех пользователей")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Все пользователи успешно получены",
-        content = {@Content(
-            mediaType = "application/json",
-            array = @ArraySchema(schema = @Schema(implementation = User.class))
-        )
-      })
+          content = {@Content(
+              mediaType = "application/json",
+              array = @ArraySchema(schema = @Schema(implementation = User.class))
+          )
+          })
   })
   @GetMapping("/")
   ResponseEntity<List<User>> getAllUsers();
@@ -44,31 +45,31 @@ public interface UsersController {
   @Operation(summary = "Получить пользователя по ID")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Пользователь успешно получен",
-        content = {@Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = User.class)
-        )
-      }),
+          content = {@Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = User.class)
+          )
+          }),
       @ApiResponse(responseCode = "400", description = "Неверные данные запроса",
           content = {@Content}),
       @ApiResponse(responseCode = "404", description = "Пользователь не найден",
-        content = {@Content})
+          content = {@Content})
   })
   @GetMapping("/{id}")
-  ResponseEntity<User> getUserById(@PathVariable("id") @Valid UserId id);
+  ResponseEntity<User> getUserById(@Parameter(description = "ID пользователя") @PathVariable("id") @Valid UserId id);
 
   @Operation(summary = "Создание пользователя")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "201", description = "Пользователь успешно создан",
-        content = {@Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = UserId.class)
-      )}),
+          content = {@Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = UserId.class)
+          )}),
       @ApiResponse(responseCode = "400", description = "Неверные данные запроса",
-        content = {@Content}),
+          content = {@Content}),
   })
   @PostMapping("/")
-  ResponseEntity<UserId> createUser(@Valid @RequestBody UserCreateRequest user);
+  ResponseEntity<UserId> createUser(@Parameter(description = "Данные о пользователе") @Valid @RequestBody UserCreateRequest user);
 
   @Operation(summary = "Полное обновление данных пользователя")
   @ApiResponses(value = {
@@ -77,14 +78,15 @@ public interface UsersController {
               mediaType = "application/json",
               schema = @Schema(implementation = User.class)
           )
-      }),
+          }),
       @ApiResponse(responseCode = "404", description = "Пользователь не найден",
-        content = {@Content}),
+          content = {@Content}),
       @ApiResponse(responseCode = "400", description = "Неверные данные запроса",
-        content = {@Content})
+          content = {@Content})
   })
   @PutMapping("/{id}")
-  ResponseEntity<User> updateUser(@PathVariable("id") @Valid UserId id, @Valid @RequestBody UserPutRequest user);
+  ResponseEntity<User> updateUser(@Parameter(description = "ID пользователя") @PathVariable("id") @Valid UserId id,
+                                  @Parameter(description = "Информация, которую надо обновить") @Valid @RequestBody UserPutRequest user);
 
   @Operation(summary = "Частичное обновление данных пользователя")
   @ApiResponses(value = {
@@ -100,7 +102,8 @@ public interface UsersController {
           content = {@Content})
   })
   @PatchMapping("/{id}")
-  ResponseEntity<User> patchUser(@PathVariable("id") @Valid UserId id, @Valid @RequestBody UserPatchRequest user);
+  ResponseEntity<User> patchUser(@Parameter(description = "ID пользователя") @PathVariable("id") @Valid UserId id,
+                                 @Parameter(description = "Информация, которую надо обновить") @Valid @RequestBody UserPatchRequest user);
 
   @Operation(summary = "Удаление пользователя")
   @ApiResponses(value = {
@@ -110,5 +113,5 @@ public interface UsersController {
           content = {@Content})
   })
   @DeleteMapping("/{id}")
-  ResponseEntity<Void> deleteUser(@PathVariable("id") @Valid UserId id);
+  ResponseEntity<Void> deleteUser(@Parameter(description = "ID пользователя") @PathVariable("id") @Valid UserId id);
 }
