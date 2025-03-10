@@ -7,12 +7,16 @@ import org.example.first_hometask.exception.UserNotFoundException;
 import org.example.first_hometask.model.User;
 import org.example.first_hometask.model.UserBook;
 import org.example.first_hometask.model.BookId;
-import org.example.first_hometask.model.UserId;
 import org.example.first_hometask.repository.UserBooksRepository;
 import org.example.first_hometask.repository.UsersRepository;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @AllArgsConstructor
 @Service
@@ -21,9 +25,10 @@ public class UserBooksService {
   private final UserBooksRepository userBookRepository;
   private final UsersRepository userRepository;
 
-  public List<UserBook> getAllBooks() {
+  @Async
+  public CompletableFuture<List<UserBook>> getAllBooks() {
     log.info("Получение всех книг");
-    return userBookRepository.findAll();
+    return CompletableFuture.completedFuture(userBookRepository.findAll());
   }
 
   public UserBook getBookById(BookId bookId) {
@@ -31,8 +36,15 @@ public class UserBooksService {
     return userBookRepository.findByBookId(bookId).orElseThrow(() -> new BookNotFoundException(bookId));
   }
 
+
   public BookId createBook(UserBook book) {
     log.info("Создание книги: {}", book.toString());
+    for (UserBook userBook : userBookRepository.findAll()) {
+      if (userBook.getTitle().equals(book.getTitle())) {
+        log.info("Книга с названием {} уже существует. Возвращаем существующую книгу.", book.getTitle());
+        return book.getId();
+      }
+    }
     userRepository.findById(book.getUserId()).map(desiredUser -> {
       List<UserBook> newBooks = desiredUser.getBooks();
       newBooks.add(book);
@@ -42,6 +54,15 @@ public class UserBooksService {
     return userBookRepository.create(book);
   }
 
+  /**
+   * Допустим, что книги создаются асинхронно, тогда вполне возможна ситуация,
+   * когда книгу создали только что и сразу же попытались изменить.
+   */
+  @Retryable(
+      retryFor = {UserNotFoundException.class},
+      maxAttempts = 5,
+      backoff = @Backoff(delay = 10000)
+  )
   public UserBook updateBook(BookId bookId, UserBook book) {
     log.info("Обновление(put) книги с ID: {}", bookId.toString());
     return userBookRepository.findByBookId(bookId).map(desiredBook -> {

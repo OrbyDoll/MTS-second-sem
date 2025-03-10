@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:13:testdb
+    username: test
+    password: whatever
+  application:
+    name: spring-test-with-containers
+server:
+  port: 8082

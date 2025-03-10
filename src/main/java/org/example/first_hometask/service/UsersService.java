@@ -6,6 +6,9 @@ import org.example.first_hometask.exception.UserNotFoundException;
 import org.example.first_hometask.model.User;
 import org.example.first_hometask.model.UserId;
 import org.example.first_hometask.repository.UsersRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,21 +19,25 @@ import java.util.List;
 public class UsersService {
   private final UsersRepository userRepository;
 
+  @Cacheable("users")
   public List<User> getAllUsers() {
     log.info("Получение всех пользователей");
     return userRepository.findAll();
   }
 
+  @Cacheable(value = "user", key = "#userId.toString()")
   public User getUserById(UserId userId) {
     log.info("Получение пользователя с ID: {}", userId.toString());
     return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
   }
 
+  @CacheEvict(value = "users", allEntries = true)
   public UserId createUser(User user) {
     log.info("Создание пользователя: {}", user.toString());
     return userRepository.create(user);
   }
 
+  @CachePut(value = "user", key = "#userId.toString()")
   public User updateUser(UserId userId, User user) {
     log.info("Обновление(put) пользователя с ID: {}", userId.toString());
     return userRepository.findById(userId).map(desiredUser -> {
@@ -41,6 +48,7 @@ public class UsersService {
     }).orElseThrow(() -> new UserNotFoundException(userId));
   }
 
+  @CachePut(value = "user", key = "#userId.toString()")
   public User patchUser(UserId userId, User user) {
     log.info("Обновление(patch) пользователя с ID: {}", userId.toString());
     return userRepository.findById(userId).map(desiredUser -> {
@@ -51,6 +59,7 @@ public class UsersService {
     }).orElseThrow(() -> new UserNotFoundException(userId));
   }
 
+  @CacheEvict(value = "user", key = "#userId.toString()")
   public void deleteUser(UserId userId) {
     log.info("Удаление пользователя с ID: {}", userId.toString());
     userRepository.deleteById(userId);

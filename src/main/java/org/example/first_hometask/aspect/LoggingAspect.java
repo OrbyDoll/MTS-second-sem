@@ -13,9 +13,12 @@ import java.time.Instant;
 @Component
 @Aspect
 public class LoggingAspect {
+  private int counter = 0;
+
   @Before("execution( * org.example.first_hometask.controller.*.*( .. ))")
   public void logBefore(JoinPoint joinPoint) {
     System.out.println("Вызвано перед методом: " + joinPoint.getSignature().getName());
+    counter++;
   }
 
   @Around("execution( * org.example.first_hometask.controller.*.*( .. ))")
@@ -25,6 +28,11 @@ public class LoggingAspect {
     Instant endTime = Instant.now();
     System.out.println("Время исполнения метода " + joinPoint.getSignature().getName() + " равно " +
         Duration.between(startTime, endTime).toMillis() + " ms");
+    counter++;
     return result;
+  }
+
+  public int getCounter() {
+    return counter;
   }
 }
