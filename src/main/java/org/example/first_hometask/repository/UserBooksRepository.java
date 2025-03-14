@@ -1,14 +1,13 @@
 package org.example.first_hometask.repository;
 
 import org.example.first_hometask.model.UserBook;
-import org.example.first_hometask.model.BookId;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface UserBooksRepository {
-  List<UserBook> findAll();
-  Optional<UserBook> findByBookId(BookId userBookId);
-  BookId create(UserBook book);
-  void deleteById(BookId userBookId);
+@Repository
+public interface UserBooksRepository extends JpaRepository<UserBook, Long> {
+  Optional<UserBook> findById(Long bookId);
 }

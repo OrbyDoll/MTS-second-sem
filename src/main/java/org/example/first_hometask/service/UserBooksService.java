@@ -6,16 +6,17 @@ import org.example.first_hometask.exception.BookNotFoundException;
 import org.example.first_hometask.exception.UserNotFoundException;
 import org.example.first_hometask.model.User;
 import org.example.first_hometask.model.UserBook;
-import org.example.first_hometask.model.BookId;
 import org.example.first_hometask.repository.UserBooksRepository;
 import org.example.first_hometask.repository.UsersRepository;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @AllArgsConstructor
@@ -31,13 +32,14 @@ public class UserBooksService {
     return CompletableFuture.completedFuture(userBookRepository.findAll());
   }
 
-  public UserBook getBookById(BookId bookId) {
+  @Transactional(readOnly = true, propagation = Propagation.SUPPORTS, isolation = Isolation.READ_COMMITTED)
+  public UserBook getBookById(Long bookId) {
     log.info("Получение книги с ID: {}", bookId.toString());
-    return userBookRepository.findByBookId(bookId).orElseThrow(() -> new BookNotFoundException(bookId));
+    return userBookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(bookId));
   }
 
-
-  public BookId createBook(UserBook book) {
+  @Transactional(propagation = Propagation.REQUIRED)
+  public Long createBook(UserBook book) {
     log.info("Создание книги: {}", book.toString());
     for (UserBook userBook : userBookRepository.findAll()) {
       if (userBook.getTitle().equals(book.getTitle())) {
@@ -51,21 +53,18 @@ public class UserBooksService {
       desiredUser.setBooks(newBooks);
       return desiredUser;
     }).orElseThrow(() -> new UserNotFoundException(book.getUserId()));
-    return userBookRepository.create(book);
+    return userBookRepository.save(book).getId();
   }
 
-  /**
-   * Допустим, что книги создаются асинхронно, тогда вполне возможна ситуация,
-   * когда книгу создали только что и сразу же попытались изменить.
-   */
   @Retryable(
       retryFor = {UserNotFoundException.class},
       maxAttempts = 5,
       backoff = @Backoff(delay = 10000)
   )
-  public UserBook updateBook(BookId bookId, UserBook book) {
+  @Transactional(propagation = Propagation.REQUIRED)
+  public UserBook updateBook(Long bookId, UserBook book) {
     log.info("Обновление(put) книги с ID: {}", bookId.toString());
-    return userBookRepository.findByBookId(bookId).map(desiredBook -> {
+    return userBookRepository.findById(bookId).map(desiredBook -> {
       userRepository.findById(desiredBook.getUserId()).map(desiredUser -> {
         List<UserBook> newBooks = desiredUser.getBooks();
         newBooks.remove(book);
@@ -84,9 +83,10 @@ public class UserBooksService {
     }).orElseThrow(() -> new BookNotFoundException(bookId));
   }
 
-  public UserBook patchBook(BookId bookId, UserBook book) {
+  @Transactional(propagation = Propagation.REQUIRED)
+  public UserBook patchBook(Long bookId, UserBook book) {
     log.info("Обновление(patch) книги с ID: {}", bookId.toString());
-    return userBookRepository.findByBookId(bookId).map(desiredBook -> {
+    return userBookRepository.findById(bookId).map(desiredBook -> {
       if (book.getUserId() != null) {
         userRepository.findById(desiredBook.getUserId()).map(desiredUser -> {
           List<UserBook> newBooks = desiredUser.getBooks();
@@ -109,13 +109,16 @@ public class UserBooksService {
     }).orElseThrow(() -> new BookNotFoundException(bookId));
   }
 
-  public void deleteBook(BookId bookId) {
+  @Transactional(propagation = Propagation.REQUIRED)
+  public void deleteBook(Long bookId) {
     log.info("Удаление книги с ID: {}", bookId.toString());
-    UserBook desiredBook = userBookRepository.findByBookId(bookId).get();
-    User desiredUser = userRepository.findById(desiredBook.getUserId()).get();
+    UserBook desiredBook = userBookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(bookId));
+    User desiredUser = userRepository.findById(desiredBook.getUserId()).orElseThrow(() -> new UserNotFoundException(
+        desiredBook.getUserId()));
     List<UserBook> newUserBooks = desiredUser.getBooks();
     newUserBooks.remove(desiredBook);
     desiredUser.setBooks(newUserBooks);
+    userRepository.save(desiredUser);
     userBookRepository.deleteById(bookId);
   }
 }

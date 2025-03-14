@@ -10,10 +10,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.example.first_hometask.model.UserBook;
-import org.example.first_hometask.model.BookId;
-import org.example.first_hometask.request.Book.BookCreateRequest;
-import org.example.first_hometask.request.Book.BookPatchRequest;
-import org.example.first_hometask.request.Book.BookPutRequest;
+import org.example.first_hometask.request.book.BookCreateRequest;
+import org.example.first_hometask.request.book.BookPatchRequest;
+import org.example.first_hometask.request.book.BookPutRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,7 +56,7 @@ public interface UserBooksController {
           content = {@Content})
   })
   @GetMapping("/{id}")
-  ResponseEntity<UserBook> getBookById(@Parameter(description = "ID книги") @Valid @PathVariable("id") BookId id);
+  ResponseEntity<UserBook> getBookById(@Parameter(description = "ID книги") @Valid @PathVariable("id") Long id);
 
   @Operation(summary = "Создание книги")
   @ApiResponses(value = {
@@ -70,7 +69,7 @@ public interface UserBooksController {
           content = {@Content}),
   })
   @PostMapping("/")
-  ResponseEntity<BookId> createBook(@Parameter(description = "Данные о книге") @Valid @RequestBody BookCreateRequest UserBook);
+  ResponseEntity<Long> createBook(@Parameter(description = "Данные о книге") @Valid @RequestBody BookCreateRequest UserBook);
 
   @Operation(summary = "Полное обновление данных книги")
   @ApiResponses(value = {
@@ -86,7 +85,7 @@ public interface UserBooksController {
           content = {@Content})
   })
   @PutMapping("/{id}")
-  ResponseEntity<UserBook> updateBook(@Parameter(description = "ID книги") @Valid @PathVariable("id") BookId id,
+  ResponseEntity<UserBook> updateBook(@Parameter(description = "ID книги") @Valid @PathVariable("id") Long id,
                                       @Parameter(description = "Данные о книге") @Valid @RequestBody BookPutRequest UserBook);
 
   @Operation(summary = "Частичное обновление данных книги")
@@ -103,7 +102,7 @@ public interface UserBooksController {
           content = {@Content})
   })
   @PatchMapping("/{id}")
-  ResponseEntity<UserBook> patchBook(@Parameter(description = "ID книги") @Valid @PathVariable("id") BookId id,
+  ResponseEntity<UserBook> patchBook(@Parameter(description = "ID книги") @Valid @PathVariable("id") Long id,
                                      @Parameter(description = "Данные о книге") @Valid @RequestBody BookPatchRequest UserBook);
 
   @Operation(summary = "Удаление книги")
@@ -114,5 +113,5 @@ public interface UserBooksController {
           content = {@Content})
   })
   @DeleteMapping("/{id}")
-  ResponseEntity<Void> deleteBook(@Parameter(description = "ID книги") @Valid @PathVariable("id") BookId id);
+  ResponseEntity<Void> deleteBook(@Parameter(description = "ID книги") @Valid @PathVariable("id") Long id);
 }
