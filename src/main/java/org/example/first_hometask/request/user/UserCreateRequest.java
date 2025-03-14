@@ -1,4 +1,4 @@
-package org.example.first_hometask.request.User;
+package org.example.first_hometask.request.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
@@ -7,21 +7,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.example.first_hometask.model.UserBook;
-import org.example.first_hometask.model.UserId;
-
-import java.util.List;
 
 @AllArgsConstructor
 @Data
-@Schema(description = "Модель запроса на полное обновление пользователя")
-public class UserPutRequest {
-  @Schema(description = "Уникальный идентификатор пользователя")
-  private UserId id;
+@Schema(description = "Модель запроса на создание пользователя")
+public class UserCreateRequest {
 
   @NotBlank
-  @Schema(description = "Имя пользователя", example = "Антон")
   @Size(min = 1, max = 50)
+  @Schema(description = "Имя пользователя", example = "Антон")
   private String firstName;
 
   @NotBlank
@@ -32,9 +26,5 @@ public class UserPutRequest {
   @NotNull
   @Min(value = 18)
   @Schema(description = "Возраст пользователя")
-  private int age;
-
-  @Schema(description = "Книги пользователя")
-  private List<UserBook> books;
+  private Integer age;
 }
-

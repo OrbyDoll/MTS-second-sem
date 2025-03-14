@@ -1,8 +1,8 @@
 create table users (
-   id BIGSERIAL PRIMARY KEY,
-   first_name varchar(50) not null,
-   second_name varchar(50) not null,
-   age bigint not null
+    id BIGSERIAL PRIMARY KEY,
+    first_name varchar(50) not null,
+    second_name varchar(50) not null,
+    age bigint not null
 );
 
 create table user_books (

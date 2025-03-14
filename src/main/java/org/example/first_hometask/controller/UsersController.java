@@ -9,10 +9,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.example.first_hometask.model.User;
-import org.example.first_hometask.model.UserId;
-import org.example.first_hometask.request.User.UserCreateRequest;
-import org.example.first_hometask.request.User.UserPatchRequest;
-import org.example.first_hometask.request.User.UserPutRequest;
+import org.example.first_hometask.request.user.UserCreateRequest;
+import org.example.first_hometask.request.user.UserPatchRequest;
+import org.example.first_hometask.request.user.UserPutRequest;
+import org.example.first_hometask.response.user.UserGetAllResponse;
+import org.example.first_hometask.response.user.UserGetResponse;
+import org.example.first_hometask.response.user.UserUpdateResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,7 +41,7 @@ public interface UsersController {
       })
   })
   @GetMapping("/")
-  ResponseEntity<List<User>> getAllUsers();
+  ResponseEntity<List<UserGetAllResponse>> getAllUsers();
 
   @Operation(summary = "Получить пользователя по ID")
   @ApiResponses(value = {
@@ -55,20 +57,20 @@ public interface UsersController {
         content = {@Content})
   })
   @GetMapping("/{id}")
-  ResponseEntity<User> getUserById(@PathVariable("id") @Valid UserId id);
+  ResponseEntity<UserGetResponse> getUserById(@PathVariable("id") @Valid Long id);
 
   @Operation(summary = "Создание пользователя")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "201", description = "Пользователь успешно создан",
         content = {@Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = UserId.class)
+            schema = @Schema(implementation = Long.class)
       )}),
       @ApiResponse(responseCode = "400", description = "Неверные данные запроса",
         content = {@Content}),
   })
   @PostMapping("/")
-  ResponseEntity<UserId> createUser(@Valid @RequestBody UserCreateRequest user);
+  ResponseEntity<Long> createUser(@Valid @RequestBody UserCreateRequest user);
 
   @Operation(summary = "Полное обновление данных пользователя")
   @ApiResponses(value = {
@@ -84,7 +86,7 @@ public interface UsersController {
         content = {@Content})
   })
   @PutMapping("/{id}")
-  ResponseEntity<User> updateUser(@PathVariable("id") @Valid UserId id, @Valid @RequestBody UserPutRequest user);
+  ResponseEntity<UserUpdateResponse> updateUser(@PathVariable("id") @Valid Long id, @Valid @RequestBody UserPutRequest user);
 
   @Operation(summary = "Частичное обновление данных пользователя")
   @ApiResponses(value = {
@@ -100,7 +102,7 @@ public interface UsersController {
           content = {@Content})
   })
   @PatchMapping("/{id}")
-  ResponseEntity<User> patchUser(@PathVariable("id") @Valid UserId id, @Valid @RequestBody UserPatchRequest user);
+  ResponseEntity<UserUpdateResponse> patchUser(@PathVariable("id") @Valid Long id, @Valid @RequestBody UserPatchRequest user);
 
   @Operation(summary = "Удаление пользователя")
   @ApiResponses(value = {
@@ -110,5 +112,5 @@ public interface UsersController {
           content = {@Content})
   })
   @DeleteMapping("/{id}")
-  ResponseEntity<Void> deleteUser(@PathVariable("id") @Valid UserId id);
+  ResponseEntity<Void> deleteUser(@PathVariable("id") @Valid Long id);
 }
