@@ -25,14 +25,21 @@ public class UsersControllerImpl implements UsersController {
   @Override
   public ResponseEntity<List<UserGetAllResponse>> getAllUsers() {
     return rateLimiter.executeSupplier(() -> {
-      return ResponseEntity.ok(userService.getAllUsers());
+      List<UserGetAllResponse> users = userService.getAllUsers();
+      List<Long> usersIds = users.stream().map(UserGetAllResponse::getId).toList();
+      return ResponseEntity.ok()
+          .header("userId", usersIds.toString())
+          .body(users);
     });
   }
 
   @Override
   public ResponseEntity<UserGetResponse> getUserById(Long id) {
     return rateLimiter.executeSupplier(() -> {
-      return ResponseEntity.ok(userService.getUserById(id));
+      UserGetResponse user = userService.getUserById(id);
+      return ResponseEntity.ok()
+          .header("userId", String.valueOf(user.getId()))
+          .body(user);
     });
   }
 
@@ -40,7 +47,10 @@ public class UsersControllerImpl implements UsersController {
   public ResponseEntity<Long> createUser(UserCreateRequest user) {
     return rateLimiter.executeSupplier(() -> {
       User castedUser = new User(user.getFirstName(), user.getSecondName(), user.getAge());
-      return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(castedUser));
+      Long userId = userService.createUser(castedUser);
+      return ResponseEntity.status(HttpStatus.CREATED)
+          .header("userId", String.valueOf(userId))
+          .body(userId);
     });
   }
 
@@ -48,7 +58,10 @@ public class UsersControllerImpl implements UsersController {
   public ResponseEntity<UserUpdateResponse> updateUser(Long id, UserPutRequest user) {
     return rateLimiter.executeSupplier(() -> {
       User castedUser = new User(user.getFirstName(), user.getSecondName(), user.getAge());
-      return ResponseEntity.ok(userService.updateUser(id, castedUser));
+      UserUpdateResponse response = userService.updateUser(id, castedUser);
+      return ResponseEntity.ok()
+          .header("userId", String.valueOf(id))
+          .body(response);
     });
   }
 
@@ -56,7 +69,10 @@ public class UsersControllerImpl implements UsersController {
   public ResponseEntity<UserUpdateResponse> patchUser(Long id, UserPatchRequest user) {
     return rateLimiter.executeSupplier(() -> {
       User castedUser = new User(user.getFirstName(), user.getSecondName(), user.getAge());
-      return ResponseEntity.ok(userService.patchUser(id, castedUser));
+      UserUpdateResponse response = userService.patchUser(id, castedUser);
+      return ResponseEntity.ok()
+          .header("userId", String.valueOf(id))
+          .body(response);
     });
   }
 
@@ -64,7 +80,9 @@ public class UsersControllerImpl implements UsersController {
   public ResponseEntity<Void> deleteUser(Long id) {
     return rateLimiter.executeSupplier(() -> {
       userService.deleteUser(id);
-      return ResponseEntity.noContent().build();
+      return ResponseEntity.noContent()
+          .header("userId", String.valueOf(id))
+          .build();
     });
   }
 }

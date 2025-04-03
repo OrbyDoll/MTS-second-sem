@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.first_hometask.exception.BookNotFoundException;
 import org.example.first_hometask.exception.UserNotFoundException;
+import org.example.first_hometask.model.Action;
+import org.example.first_hometask.model.Message;
 import org.example.first_hometask.model.User;
 import org.example.first_hometask.model.UserBook;
 import org.example.first_hometask.repository.UserBooksRepository;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -25,16 +28,22 @@ import java.util.concurrent.CompletableFuture;
 public class UserBooksService {
   private final UserBooksRepository userBookRepository;
   private final UsersRepository userRepository;
+  private final KafkaProducerService kafkaProducerService;
 
   @Async
   public CompletableFuture<List<UserBook>> getAllBooks() {
     log.info("Получение всех книг");
+    Message auditMessage = new Message(0L, Instant.now(), Action.SELECT, "Запросили все книги");
+    kafkaProducerService.sendMessage(auditMessage);
     return CompletableFuture.completedFuture(userBookRepository.findAll());
   }
 
   @Transactional(readOnly = true, propagation = Propagation.SUPPORTS, isolation = Isolation.READ_COMMITTED)
   public UserBook getBookById(Long bookId) {
     log.info("Получение книги с ID: {}", bookId.toString());
+    Message auditMessage =
+        new Message(bookId, Instant.now(), Action.SELECT, "Запросили книгу с ID: " + bookId);
+    kafkaProducerService.sendMessage(auditMessage);
     return userBookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(bookId));
   }
 
@@ -43,7 +52,8 @@ public class UserBooksService {
     log.info("Создание книги: {}", book.toString());
     for (UserBook userBook : userBookRepository.findAll()) {
       if (userBook.getTitle().equals(book.getTitle())) {
-        log.info("Книга с названием {} уже существует. Возвращаем существующую книгу.", book.getTitle());
+        log.info("Книга с названием {} уже существует. Возвращаем существующую книгу.",
+            book.getTitle());
         return book.getId();
       }
     }
@@ -53,6 +63,9 @@ public class UserBooksService {
       desiredUser.setBooks(newBooks);
       return desiredUser;
     }).orElseThrow(() -> new UserNotFoundException(book.getUserId()));
+    Message auditMessage =
+        new Message(0L, Instant.now(), Action.INSERT, "Создание новой книги: " + book.toString());
+    kafkaProducerService.sendMessage(auditMessage);
     return userBookRepository.save(book).getId();
   }
 
@@ -79,6 +92,10 @@ public class UserBooksService {
         desiredUser.setBooks(newBooks);
         return desiredUser;
       }).orElseThrow(() -> new UserNotFoundException(book.getUserId()));
+      Message auditMessage = new Message(bookId, Instant.now(),
+          Action.UPDATE,
+          "Обновление(put) книги с ID: " + bookId + ". Новые данные: " + book.toString());
+      kafkaProducerService.sendMessage(auditMessage);
       return desiredBook;
     }).orElseThrow(() -> new BookNotFoundException(bookId));
   }
@@ -94,8 +111,11 @@ public class UserBooksService {
           desiredUser.setBooks(newBooks);
           return desiredUser;
         }).orElseThrow(() -> new UserNotFoundException(book.getUserId()));
-        desiredBook.setUserId(book.getUserId() == null ? desiredBook.getUserId() : book.getUserId());
+
+        desiredBook.setUserId(
+            book.getUserId() == null ? desiredBook.getUserId() : book.getUserId());
         desiredBook.setTitle(book.getTitle() == null ? desiredBook.getTitle() : book.getTitle());
+
         userRepository.findById(book.getUserId()).map(desiredUser -> {
           List<UserBook> newBooks = desiredUser.getBooks();
           newBooks.add(desiredBook);
@@ -105,6 +125,10 @@ public class UserBooksService {
       }
       desiredBook.setUserId(book.getUserId() == null ? desiredBook.getUserId() : book.getUserId());
       desiredBook.setTitle(book.getTitle() == null ? desiredBook.getTitle() : book.getTitle());
+      Message auditMessage = new Message(bookId, Instant.now(),
+          Action.UPDATE,
+          "Обновление(patch) книги с ID: " + bookId + ". Частичные данные: " + book.toString());
+      kafkaProducerService.sendMessage(auditMessage);
       return desiredBook;
     }).orElseThrow(() -> new BookNotFoundException(bookId));
   }
@@ -112,13 +136,17 @@ public class UserBooksService {
   @Transactional(propagation = Propagation.REQUIRED)
   public void deleteBook(Long bookId) {
     log.info("Удаление книги с ID: {}", bookId.toString());
-    UserBook desiredBook = userBookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(bookId));
-    User desiredUser = userRepository.findById(desiredBook.getUserId()).orElseThrow(() -> new UserNotFoundException(
-        desiredBook.getUserId()));
+    UserBook desiredBook = userBookRepository.findById(bookId)
+        .orElseThrow(() -> new BookNotFoundException(bookId));
+    User desiredUser = userRepository.findById(desiredBook.getUserId())
+        .orElseThrow(() -> new UserNotFoundException(desiredBook.getUserId()));
     List<UserBook> newUserBooks = desiredUser.getBooks();
     newUserBooks.remove(desiredBook);
     desiredUser.setBooks(newUserBooks);
     userRepository.save(desiredUser);
     userBookRepository.deleteById(bookId);
+    Message auditMessage =
+        new Message(bookId, Instant.now(), Action.DELETE, "Удаление книги с ID: " + bookId);
+    kafkaProducerService.sendMessage(auditMessage);
   }
 }

@@ -27,10 +27,15 @@ public class UserBooksControllerImpl implements UserBooksController {
     return circuitBreaker.executeSupplier(() -> {
       return rateLimiter.executeSupplier(() -> {
         return userBookService.getAllBooks()
-            .thenApply(ResponseEntity::ok)
+            .thenApply(books -> {
+              List<Long> booksIds = books.stream().map(UserBook::getId).toList();
+              return ResponseEntity.ok()
+                  .header("bookId", booksIds.toString())
+                  .body(books);
+            })
             .exceptionally(ex -> {
               return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        });
+            });
       });
     });
   }
@@ -39,7 +44,9 @@ public class UserBooksControllerImpl implements UserBooksController {
   public ResponseEntity<UserBook> getBookById(Long id) {
     return circuitBreaker.executeSupplier(() -> {
       return rateLimiter.executeSupplier(() -> {
-        return ResponseEntity.ok(userBookService.getBookById(id));
+        return ResponseEntity.ok()
+            .header("bookId", String.valueOf(id))
+            .body(userBookService.getBookById(id));
       });
     });
   }
@@ -49,7 +56,9 @@ public class UserBooksControllerImpl implements UserBooksController {
     return circuitBreaker.executeSupplier(() -> {
       return rateLimiter.executeSupplier(() -> {
         UserBook castedBook = new UserBook(book.getTitle(), book.getUserId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(userBookService.createBook(castedBook));
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .header("bookId", String.valueOf(castedBook.getId()))
+            .body(userBookService.createBook(castedBook));
       });
     });
   }
@@ -59,7 +68,9 @@ public class UserBooksControllerImpl implements UserBooksController {
     return circuitBreaker.executeSupplier(() -> {
       return rateLimiter.executeSupplier(() -> {
         UserBook castedBook = new UserBook(book.getTitle(), book.getUserId());
-        return ResponseEntity.ok(userBookService.updateBook(id, castedBook));
+        return ResponseEntity.ok()
+            .header("bookId", castedBook.getId().toString())
+            .body(userBookService.updateBook(id, castedBook));
       });
     });
   }
@@ -69,7 +80,9 @@ public class UserBooksControllerImpl implements UserBooksController {
     return circuitBreaker.executeSupplier(() -> {
       return rateLimiter.executeSupplier(() -> {
         UserBook castedBook = new UserBook(book.getTitle(), book.getUserId());
-        return ResponseEntity.ok(userBookService.patchBook(id, castedBook));
+        return ResponseEntity.ok()
+            .header("bookId", String.valueOf(castedBook.getId()))
+            .body(userBookService.patchBook(id, castedBook));
       });
     });
   }
@@ -79,7 +92,7 @@ public class UserBooksControllerImpl implements UserBooksController {
     return circuitBreaker.executeSupplier(() -> {
       return rateLimiter.executeSupplier(() -> {
         userBookService.deleteBook(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().header("bookId", id.toString()).build();
       });
     });
   }

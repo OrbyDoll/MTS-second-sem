@@ -3,6 +3,8 @@ package org.example.first_hometask.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.first_hometask.exception.UserNotFoundException;
+import org.example.first_hometask.model.Action;
+import org.example.first_hometask.model.Message;
 import org.example.first_hometask.model.User;
 import org.example.first_hometask.repository.UsersRepository;
 import org.example.first_hometask.response.user.UserGetAllResponse;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +27,7 @@ import java.util.List;
 @Slf4j
 public class UsersService {
   private final UsersRepository userRepository;
+  private final KafkaProducerService kafkaProducerService;
 
   @Transactional(readOnly = true, propagation = Propagation.SUPPORTS, isolation = Isolation.READ_COMMITTED)
   @Cacheable("users")
@@ -33,6 +37,9 @@ public class UsersService {
     for (User user : userRepository.findAll()) {
       users.add(new UserGetAllResponse(user));
     }
+    Message auditMessage =
+        new Message(0L, Instant.now(), Action.SELECT, "Запросили всех пользователей");
+    kafkaProducerService.sendMessage(auditMessage);
     return users;
   }
 
@@ -42,6 +49,9 @@ public class UsersService {
     log.info("Получение пользователя с ID: {}", userId.toString());
     User desiredUser =
         userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+    Message auditMessage =
+        new Message(userId, Instant.now(), Action.SELECT, "Запросили пользователя с ID: " + userId);
+    kafkaProducerService.sendMessage(auditMessage);
     return new UserGetResponse(desiredUser);
   }
 
@@ -49,6 +59,10 @@ public class UsersService {
   @CacheEvict(value = "users", allEntries = true)
   public Long createUser(User user) {
     log.info("Создание пользователя: {}", user.toString());
+    Message auditMessage =
+        new Message(0L, Instant.now(), Action.INSERT,
+            "Создание нового пользователя: " + user.toString());
+    kafkaProducerService.sendMessage(auditMessage);
     return userRepository.save(user).getId();
   }
 
@@ -61,6 +75,10 @@ public class UsersService {
       desiredUser.setSecondName(user.getSecondName());
       desiredUser.setAge(user.getAge());
       User savedUser = userRepository.save(desiredUser);
+      Message auditMessage = new Message(userId, Instant.now(),
+          Action.UPDATE, "Обновление(put) пользователя с ID: " + userId + ". Данные обновления: " +
+          user.toString());
+      kafkaProducerService.sendMessage(auditMessage);
       return new UserUpdateResponse(savedUser);
     }).orElseThrow(() -> new UserNotFoundException(userId));
   }
@@ -80,6 +98,11 @@ public class UsersService {
         desiredUser.setAge(user.getAge());
       }
       User savedUser = userRepository.save(desiredUser);
+      Message auditMessage = new Message(userId, Instant.now(),
+          Action.UPDATE,
+          "Обновление(patch) пользователя с ID: " + userId + ". Данные обновления: " +
+              user.toString());
+      kafkaProducerService.sendMessage(auditMessage);
       return new UserUpdateResponse(savedUser);
     }).orElseThrow(() -> new UserNotFoundException(userId));
   }
@@ -87,6 +110,9 @@ public class UsersService {
   @Transactional(propagation = Propagation.REQUIRED)
   @CacheEvict(value = "user", key = "#userId.toString()")
   public void deleteUser(Long userId) {
+    Message auditMessage =
+        new Message(userId, Instant.now(), Action.DELETE, "Удаляем пользователя с ID: " + userId);
+    kafkaProducerService.sendMessage(auditMessage);
     log.info("Удаление пользователя с ID: {}", userId.toString());
     userRepository.deleteById(userId);
   }

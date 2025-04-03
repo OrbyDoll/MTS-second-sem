@@ -17,7 +17,7 @@ spring:
   application:
     name: spring-synchronous-interaction
   datasource:
-    url: jdbc:postgresql://localhost:5432/mts_homework
+    url: jdbc:postgresql://localhost:5432/mts-homework
     username: postgres
     password: whatever
     driver-class-name: org.postgresql.Driver
@@ -31,10 +31,13 @@ spring:
         format_sql: true
   flyway:
     enabled: true
+  kafka:
+    bootstrap-servers: localhost:29093
   security:
     user:
       name: admin
       password: secret
+topic-to-send-message: audit-topic
 springdoc:
   swagger-ui:
     enabled: true
@@ -52,7 +55,3 @@ management:
         include: "*"
         exclude: shutdown
       base-path: /admin/actuator
-  prometheus:
-    metrics:
-      export:
-        enabled: true
