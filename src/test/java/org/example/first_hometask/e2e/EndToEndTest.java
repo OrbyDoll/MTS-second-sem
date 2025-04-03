@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -26,6 +28,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -61,17 +64,11 @@ public class EndToEndTest {
   @Test
   @DisplayName("Тест всей логики приложения")
   public void E2ETest() {
-    restTemplate.getRestTemplate().setMessageConverters(
-        Collections.singletonList(
-            new MappingJackson2HttpMessageConverter(
-                new ObjectMapper()
-            )
-        )
-    );
     User user1 = new User("Anton", "Khazin", 18);
     User user2 = new User("Vadim", "Sosnin", 19);
     ResponseEntity<Long> createUserResponse1 =
-        restTemplate.postForEntity("http://localhost:" + port + "/api/users/", user1, Long.class);
+        restTemplate.exchange("http://localhost:" + port + "/api/users/", HttpMethod.POST,
+            new HttpEntity<>(user1), Long.class);
     ResponseEntity<Long> createUserResponse2 =
         restTemplate.postForEntity("http://localhost:" + port + "/api/users/", user2, Long.class);
     assertEquals(HttpStatus.CREATED, createUserResponse1.getStatusCode());
@@ -93,7 +90,8 @@ public class EndToEndTest {
     assertEquals(1L, createBookResponse.getBody());
 
     ResponseEntity<User> getUser1DataResponse =
-        restTemplate.getForEntity("http://localhost:" + port + "/api/users/1", User.class);
+        restTemplate.exchange("http://localhost:" + port + "/api/users/1", HttpMethod.GET,
+            null, User.class);
     assertEquals(HttpStatus.OK, getUser1DataResponse.getStatusCode());
     UserBook receivedBook1 = getUser1DataResponse.getBody().getBooks().get(0);
     assertEquals(book.getTitle(), receivedBook1.getTitle());
