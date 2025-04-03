@@ -1,5 +1,6 @@
 package org.example.first_hometask.e2e;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.first_hometask.Application;
 import org.example.first_hometask.model.User;
 import org.example.first_hometask.model.UserBook;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -23,6 +25,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -58,6 +61,13 @@ public class EndToEndTest {
   @Test
   @DisplayName("Тест всей логики приложения")
   public void E2ETest() {
+    restTemplate.getRestTemplate().setMessageConverters(
+        Collections.singletonList(
+            new MappingJackson2HttpMessageConverter(
+                new ObjectMapper()
+            )
+        )
+    );
     User user1 = new User("Anton", "Khazin", 18);
     User user2 = new User("Vadim", "Sosnin", 19);
     ResponseEntity<Long> createUserResponse1 =
