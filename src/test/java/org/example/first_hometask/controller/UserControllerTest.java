@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(UsersController.class)
-@ContextConfiguration(classes={Application.class, SecurityConfig.class})
+@ContextConfiguration(classes = {Application.class, SecurityConfig.class})
 public class UserControllerTest {
   @Autowired
   private MockMvc mvc;
@@ -38,7 +38,7 @@ public class UserControllerTest {
   @Test
   public void getAllUsersTest() throws Exception {
     List<User> users = List.of(new User("Anton", "Khazin", 18),
-        new User( "Vadim", "Sosnin", 19));
+        new User("Vadim", "Sosnin", 19));
     List<UserGetAllResponse> response = new ArrayList<>();
     for (User user : users) {
       response.add(new UserGetAllResponse(user));

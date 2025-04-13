@@ -6,10 +6,8 @@ import org.example.first_hometask.security.SecurityConfig;
 import org.example.first_hometask.service.KafkaProducerService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -44,18 +42,17 @@ public class LoggingAspectTest {
     postgresContainer.start();
   }
 
+  @Autowired
+  private UsersController userController;
+  @Autowired
+  private LoggingAspect loggingAspect;
+
   @DynamicPropertySource
   static void registerProperties(DynamicPropertyRegistry registry) {
     registry.add("spring.datasource.url", postgresContainer::getJdbcUrl);
     registry.add("spring.datasource.username", postgresContainer::getUsername);
     registry.add("spring.datasource.password", postgresContainer::getPassword);
   }
-
-  @Autowired
-  private UsersController userController;
-
-  @Autowired
-  private LoggingAspect loggingAspect;
 
   @Test
   public void testAspectCounter() {
