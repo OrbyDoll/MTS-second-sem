@@ -4,10 +4,9 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import lombok.AllArgsConstructor;
 import org.example.first_hometask.model.UserBook;
-import org.example.first_hometask.model.BookId;
-import org.example.first_hometask.request.Book.BookCreateRequest;
-import org.example.first_hometask.request.Book.BookPatchRequest;
-import org.example.first_hometask.request.Book.BookPutRequest;
+import org.example.first_hometask.request.book.BookCreateRequest;
+import org.example.first_hometask.request.book.BookPatchRequest;
+import org.example.first_hometask.request.book.BookPutRequest;
 import org.example.first_hometask.service.UserBooksService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,59 +27,72 @@ public class UserBooksControllerImpl implements UserBooksController {
     return circuitBreaker.executeSupplier(() -> {
       return rateLimiter.executeSupplier(() -> {
         return userBookService.getAllBooks()
-            .thenApply(ResponseEntity::ok)
+            .thenApply(books -> {
+              List<Long> booksIds = books.stream().map(UserBook::getId).toList();
+              return ResponseEntity.ok()
+                  .header("bookId", booksIds.toString())
+                  .body(books);
+            })
             .exceptionally(ex -> {
               return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        });
+            });
       });
     });
   }
 
   @Override
-  public ResponseEntity<UserBook> getBookById(BookId id) {
+  public ResponseEntity<UserBook> getBookById(Long id) {
     return circuitBreaker.executeSupplier(() -> {
       return rateLimiter.executeSupplier(() -> {
-        return ResponseEntity.ok(userBookService.getBookById(id));
+        return ResponseEntity.ok()
+            .header("bookId", String.valueOf(id))
+            .body(userBookService.getBookById(id));
       });
     });
   }
 
   @Override
-  public ResponseEntity<BookId> createBook(BookCreateRequest book) {
+  public ResponseEntity<Long> createBook(BookCreateRequest book) {
     return circuitBreaker.executeSupplier(() -> {
       return rateLimiter.executeSupplier(() -> {
-        UserBook castedBook = new UserBook(book.getId(), book.getTitle(), book.getUserId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(userBookService.createBook(castedBook));
+        UserBook castedBook = new UserBook(book.getTitle(), book.getUserId());
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .header("bookId", String.valueOf(castedBook.getId()))
+            .body(userBookService.createBook(castedBook));
       });
     });
   }
 
   @Override
-  public ResponseEntity<UserBook> updateBook(BookId id, BookPutRequest book) {
+  public ResponseEntity<UserBook> updateBook(Long id, BookPutRequest book) {
     return circuitBreaker.executeSupplier(() -> {
       return rateLimiter.executeSupplier(() -> {
-        UserBook castedBook = new UserBook(book.getId(), book.getTitle(), book.getUserId());
-        return ResponseEntity.ok(userBookService.updateBook(id, castedBook));
+        UserBook castedBook = new UserBook(book.getTitle(), book.getUserId());
+        return ResponseEntity.ok()
+            .header("bookId", castedBook.getId().toString())
+            .body(userBookService.updateBook(id, castedBook));
       });
     });
   }
 
   @Override
-  public ResponseEntity<UserBook> patchBook(BookId id, BookPatchRequest book) {
+  public ResponseEntity<UserBook> patchBook(Long id, BookPatchRequest book) {
     return circuitBreaker.executeSupplier(() -> {
       return rateLimiter.executeSupplier(() -> {
-        UserBook castedBook = new UserBook(book.getId(), book.getTitle(), book.getUserId());
-        return ResponseEntity.ok(userBookService.patchBook(id, castedBook));
+        UserBook castedBook = new UserBook(book.getTitle(), book.getUserId());
+        return ResponseEntity.ok()
+            .header("bookId", String.valueOf(castedBook.getId()))
+            .body(userBookService.patchBook(id, castedBook));
       });
     });
   }
 
   @Override
-  public ResponseEntity<Void> deleteBook(BookId id) {
+  public ResponseEntity<Void> deleteBook(Long id) {
     return circuitBreaker.executeSupplier(() -> {
       return rateLimiter.executeSupplier(() -> {
         userBookService.deleteBook(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().header("bookId", id.toString()).build();
       });
     });
   }
