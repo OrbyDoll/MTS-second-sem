@@ -1,13 +1,11 @@
 package org.example.first_hometask.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.springframework.kafka.KafkaException;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.example.first_hometask.model.Action;
 import org.example.first_hometask.model.Message;
@@ -20,6 +18,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.kafka.KafkaException;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -67,10 +66,8 @@ class KafkaProducerServiceTest {
           Message message = null;
           try {
             message = objectMapper.readValue(record.value(), Message.class);
-          } catch (JsonMappingException e) {
-            e.printStackTrace();
           } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
           }
           assertEquals(testDtoMessage, message);
         }

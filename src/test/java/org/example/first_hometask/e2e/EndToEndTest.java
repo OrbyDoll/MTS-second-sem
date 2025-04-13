@@ -1,6 +1,5 @@
 package org.example.first_hometask.e2e;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.first_hometask.Application;
 import org.example.first_hometask.model.User;
 import org.example.first_hometask.model.UserBook;
@@ -10,35 +9,41 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties =
-    {"spring.flyway.enabled=false"})
+    {"spring.flyway.enabled=false",
+        "topic-to-send-message=audit-topic"})
 @ContextConfiguration(classes = {Application.class, SecurityConfig.class})
 @Testcontainers
 @ActiveProfiles("test")
 public class EndToEndTest {
+  @ServiceConnection
+  public static final KafkaContainer KAFKA =
+      new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.4.0"));
   static PostgreSQLContainer<?> postgresContainer =
       new PostgreSQLContainer<>("postgres:17")
           .withInitScript("init.sql")
