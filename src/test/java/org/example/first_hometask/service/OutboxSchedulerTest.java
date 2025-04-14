@@ -41,6 +41,7 @@ public class OutboxSchedulerTest {
 
   @BeforeEach
   void cleanUp() {
+    outboxRepository.deleteAll();
     outboxScheduler.processOutbox();
   }
 

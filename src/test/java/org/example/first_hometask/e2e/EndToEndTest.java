@@ -1,10 +1,10 @@
 package org.example.first_hometask.e2e;
 
 import org.example.first_hometask.Application;
+import org.example.first_hometask.config.SecurityConfig;
 import org.example.first_hometask.model.User;
 import org.example.first_hometask.model.UserBook;
 import org.example.first_hometask.request.book.BookPatchRequest;
-import org.example.first_hometask.config.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -2,7 +2,6 @@ package org.example.first_hometask.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -10,23 +9,17 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.example.first_hometask.Application;
 import org.example.first_hometask.model.Action;
 import org.example.first_hometask.model.Message;
-import org.example.first_hometask.repository.OutboxRecordsRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 import org.springframework.kafka.KafkaException;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.awt.desktop.AppForegroundListener;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -38,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(
     classes = {Application.class, KafkaProducerService.class},
-    properties = {"topic-to-send-message=audit-topic"}
+    properties = {"topic-to-send-message=audit-topic", "spring.flyway.enabled=false"}
 )
 @Testcontainers
 class KafkaProducerServiceTest {
@@ -47,6 +40,8 @@ class KafkaProducerServiceTest {
   @ServiceConnection
   public static final KafkaContainer KAFKA =
       new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.4.0"));
+  @Autowired
+  private OutboxScheduler outboxScheduler;
   @Autowired
   private KafkaProducerService kafkaProducerService;
   @Autowired
@@ -57,7 +52,7 @@ class KafkaProducerServiceTest {
   void test1() {
     Message testDtoMessage = new Message();
     assertDoesNotThrow(() -> kafkaProducerService.sendMessage(testDtoMessage));
-
+    outboxScheduler.processOutbox();
     KafkaTestConsumer consumer = new KafkaTestConsumer(KAFKA.getBootstrapServers(), "audit-group");
     consumer.subscribe(List.of("audit-topic"));
 
@@ -80,8 +75,9 @@ class KafkaProducerServiceTest {
   @DisplayName("Тест на посылку слишком большого сообщения")
   void test2() {
     String largeText = new String(new byte[1_000_001]);
+    kafkaProducerService.sendMessage(new Message(1L, Instant.now(), Action.INSERT, largeText));
     assertThrows(KafkaException.class, () -> {
-      kafkaProducerService.sendMessage(new Message(1L, Instant.now(), Action.INSERT, largeText));
+      outboxScheduler.processOutbox();
     });
   }
 
