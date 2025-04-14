@@ -21,7 +21,7 @@ import org.testcontainers.utility.DockerImageName;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest(properties = {"spring.scheduling.enabled=false"}, classes = {Application.class})
+@SpringBootTest(properties = {"spring.scheduling.enabled=false", "spring.flyway.enabled=false"}, classes = {Application.class})
 @Testcontainers
 public class OutboxSchedulerTest {
   @ServiceConnection
