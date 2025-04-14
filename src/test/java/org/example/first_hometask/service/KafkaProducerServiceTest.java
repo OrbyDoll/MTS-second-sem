@@ -15,7 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.kafka.KafkaException;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -40,12 +43,31 @@ class KafkaProducerServiceTest {
   @ServiceConnection
   public static final KafkaContainer KAFKA =
       new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.4.0"));
+
+  @Container
+  static PostgreSQLContainer<?> postgresContainer =
+      new PostgreSQLContainer<>("postgres:17")
+          .withInitScript("init.sql")
+          .withDatabaseName("test database")
+          .withUsername("My user");
+
+  static {
+    postgresContainer.start();
+  }
+
   @Autowired
   private OutboxScheduler outboxScheduler;
   @Autowired
   private KafkaProducerService kafkaProducerService;
   @Autowired
   private ObjectMapper objectMapper;
+
+  @DynamicPropertySource
+  static void registerProperties(DynamicPropertyRegistry registry) {
+    registry.add("spring.datasource.url", postgresContainer::getJdbcUrl);
+    registry.add("spring.datasource.username", postgresContainer::getUsername);
+    registry.add("spring.datasource.password", postgresContainer::getPassword);
+  }
 
   @Test
   @DisplayName("Тест на удачную посылку сообщения")
