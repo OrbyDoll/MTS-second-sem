@@ -1,5 +1,6 @@
 package org.example.first_hometask.repository;
 
+import jakarta.validation.ConstraintViolationException;
 import org.example.first_hometask.model.User;
 import org.example.first_hometask.model.UserBook;
 import org.junit.jupiter.api.DisplayName;
@@ -10,8 +11,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-
-import jakarta.validation.ConstraintViolationException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -20,13 +19,16 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest(properties = {"spring.flyway.enabled=false"})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @Testcontainers
-@ActiveProfiles("application-test-with-containers")
+@ActiveProfiles("test-with-containers")
 public class UserBooksRepositoryTest {
   static PostgreSQLContainer<?> postgresContainer =
       new PostgreSQLContainer<>("postgres:17")

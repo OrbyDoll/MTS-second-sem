@@ -24,38 +24,34 @@ import java.util.Objects;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Getter
 @Table(name = "users")
 @Schema(name = "User", description = "Модель пользователя")
 public class User {
 
-  @Getter
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Schema(description = "Уникальный идентификатор пользователя")
   private Long id;
 
-  @Getter
   @Setter
   @Size(min = 1, max = 50)
   @Column(name = "first_name", length = 50, nullable = false)
   @Schema(description = "Имя пользователя", example = "Антон")
   private String firstName;
 
-  @Getter
   @Setter
   @Size(min = 1, max = 50)
   @Column(name = "second_name", length = 50, nullable = false)
   @Schema(description = "Фамилия пользователя", example = "Хазин")
   private String secondName;
 
-  @Getter
   @Setter
   @Min(value = 18)
   @Column(name = "age", nullable = false)
   @Schema(description = "Возраст пользователя")
   private Integer age;
 
-  @Getter
   @Setter
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "user_id")

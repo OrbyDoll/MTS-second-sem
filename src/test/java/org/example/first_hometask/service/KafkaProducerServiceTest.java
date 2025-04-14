@@ -2,24 +2,23 @@ package org.example.first_hometask.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.example.first_hometask.Application;
 import org.example.first_hometask.model.Action;
 import org.example.first_hometask.model.Message;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 import org.springframework.kafka.KafkaException;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -34,10 +33,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(
-    classes = {KafkaProducerService.class},
-    properties = {"topic-to-send-message=audit-topic"}
+    classes = {Application.class, KafkaProducerService.class},
+    properties = {"topic-to-send-message=audit-topic", "spring.flyway.enabled=false"}
 )
-@Import({KafkaAutoConfiguration.class, KafkaProducerServiceTest.ObjectMapperTestConfig.class})
 @Testcontainers
 class KafkaProducerServiceTest {
 
@@ -45,17 +43,38 @@ class KafkaProducerServiceTest {
   @ServiceConnection
   public static final KafkaContainer KAFKA =
       new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.4.0"));
+
+  @Container
+  static PostgreSQLContainer<?> postgresContainer =
+      new PostgreSQLContainer<>("postgres:17")
+          .withInitScript("init.sql")
+          .withDatabaseName("test database")
+          .withUsername("My user");
+
+  static {
+    postgresContainer.start();
+  }
+
+  @Autowired
+  private OutboxScheduler outboxScheduler;
   @Autowired
   private KafkaProducerService kafkaProducerService;
   @Autowired
   private ObjectMapper objectMapper;
+
+  @DynamicPropertySource
+  static void registerProperties(DynamicPropertyRegistry registry) {
+    registry.add("spring.datasource.url", postgresContainer::getJdbcUrl);
+    registry.add("spring.datasource.username", postgresContainer::getUsername);
+    registry.add("spring.datasource.password", postgresContainer::getPassword);
+  }
 
   @Test
   @DisplayName("Тест на удачную посылку сообщения")
   void test1() {
     Message testDtoMessage = new Message();
     assertDoesNotThrow(() -> kafkaProducerService.sendMessage(testDtoMessage));
-
+    outboxScheduler.processOutbox();
     KafkaTestConsumer consumer = new KafkaTestConsumer(KAFKA.getBootstrapServers(), "audit-group");
     consumer.subscribe(List.of("audit-topic"));
 
@@ -78,17 +97,10 @@ class KafkaProducerServiceTest {
   @DisplayName("Тест на посылку слишком большого сообщения")
   void test2() {
     String largeText = new String(new byte[1_000_001]);
+    kafkaProducerService.sendMessage(new Message(1L, Instant.now(), Action.INSERT, largeText));
     assertThrows(KafkaException.class, () -> {
-      kafkaProducerService.sendMessage(new Message(1L, Instant.now(), Action.INSERT, largeText));
+      outboxScheduler.processOutbox();
     });
-  }
-
-  @TestConfiguration
-  static class ObjectMapperTestConfig {
-    @Bean
-    public ObjectMapper objectMapper() {
-      return new ObjectMapper().registerModule(new JavaTimeModule());
-    }
   }
 
   static class KafkaTestConsumer {

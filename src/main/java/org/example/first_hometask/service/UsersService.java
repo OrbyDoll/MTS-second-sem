@@ -29,7 +29,7 @@ public class UsersService {
   private final UsersRepository userRepository;
   private final KafkaProducerService kafkaProducerService;
 
-  @Transactional(readOnly = true, propagation = Propagation.SUPPORTS, isolation = Isolation.READ_COMMITTED)
+  @Transactional(propagation = Propagation.SUPPORTS, isolation = Isolation.READ_COMMITTED)
   @Cacheable("users")
   public List<UserGetAllResponse> getAllUsers() {
     log.info("Получение всех пользователей");
@@ -43,7 +43,7 @@ public class UsersService {
     return users;
   }
 
-  @Transactional(readOnly = true, propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
   @Cacheable(value = "user", key = "#userId.toString()")
   public UserGetResponse getUserById(Long userId) {
     log.info("Получение пользователя с ID: {}", userId.toString());

@@ -1,4 +1,4 @@
-package org.example.first_hometask;
+package org.example.first_hometask.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,8 +8,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
-@EnableAsync
-@EnableRetry
 public class AppConfig {
 
   @Bean

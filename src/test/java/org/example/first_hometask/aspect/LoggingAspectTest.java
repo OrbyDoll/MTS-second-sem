@@ -1,8 +1,8 @@
 package org.example.first_hometask.aspect;
 
 import org.example.first_hometask.Application;
+import org.example.first_hometask.config.SecurityConfig;
 import org.example.first_hometask.controller.UsersController;
-import org.example.first_hometask.security.SecurityConfig;
 import org.example.first_hometask.service.KafkaProducerService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
