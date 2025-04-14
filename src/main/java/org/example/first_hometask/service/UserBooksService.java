@@ -38,7 +38,7 @@ public class UserBooksService {
     return CompletableFuture.completedFuture(userBookRepository.findAll());
   }
 
-  @Transactional(readOnly = true, propagation = Propagation.SUPPORTS, isolation = Isolation.READ_COMMITTED)
+  @Transactional(propagation = Propagation.SUPPORTS, isolation = Isolation.READ_COMMITTED)
   public UserBook getBookById(Long bookId) {
     log.info("Получение книги с ID: {}", bookId.toString());
     Message auditMessage =

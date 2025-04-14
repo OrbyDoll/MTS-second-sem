@@ -7,8 +7,10 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.example.first_hometask.Application;
 import org.example.first_hometask.model.Action;
 import org.example.first_hometask.model.Message;
+import org.example.first_hometask.repository.OutboxRecordsRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.awt.desktop.AppForegroundListener;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -34,10 +37,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(
-    classes = {KafkaProducerService.class},
+    classes = {Application.class, KafkaProducerService.class},
     properties = {"topic-to-send-message=audit-topic"}
 )
-@Import({KafkaAutoConfiguration.class, KafkaProducerServiceTest.ObjectMapperTestConfig.class})
 @Testcontainers
 class KafkaProducerServiceTest {
 
@@ -81,14 +83,6 @@ class KafkaProducerServiceTest {
     assertThrows(KafkaException.class, () -> {
       kafkaProducerService.sendMessage(new Message(1L, Instant.now(), Action.INSERT, largeText));
     });
-  }
-
-  @TestConfiguration
-  static class ObjectMapperTestConfig {
-    @Bean
-    public ObjectMapper objectMapper() {
-      return new ObjectMapper().registerModule(new JavaTimeModule());
-    }
   }
 
   static class KafkaTestConsumer {

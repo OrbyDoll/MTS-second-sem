@@ -169,7 +169,7 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>10.20.1</version>
                 <configuration>
-                    <url>jdbc:postgresql://localhost:5432/mts_homework</url>
+                    <url>jdbc:postgresql://localhost:5432/mts-homework</url>
                     <user>postgres</user>
                     <password>whatever</password>
                 </configuration>

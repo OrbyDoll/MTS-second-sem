@@ -5,7 +5,7 @@ import org.example.first_hometask.exception.UserNotFoundException;
 import org.example.first_hometask.model.User;
 import org.example.first_hometask.response.user.UserGetAllResponse;
 import org.example.first_hometask.response.user.UserGetResponse;
-import org.example.first_hometask.security.SecurityConfig;
+import org.example.first_hometask.config.SecurityConfig;
 import org.example.first_hometask.service.UsersService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

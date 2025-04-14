@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @Testcontainers
-@ActiveProfiles("application-test-with-containers")
+@ActiveProfiles("test-with-containers")
 public class UserBooksRepositoryTest {
   static PostgreSQLContainer<?> postgresContainer =
       new PostgreSQLContainer<>("postgres:17")

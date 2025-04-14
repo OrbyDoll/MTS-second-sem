@@ -1,5 +1,6 @@
-package org.example.first_hometask.security;
+package org.example.first_hometask.config;
 
+import org.example.first_hometask.security.JwtTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
