@@ -21,7 +21,7 @@ public class MetricService {
         .description("Общая информация о таске")
         .baseUnit("milliseconds")
         .serviceLevelObjectives(10, 50, 100, 200, 300, 400, 500, 1000, 10000)
-//        .publishPercentiles(0.5, 0.75, 0.95, 0.99)
+        .publishPercentiles(0.5, 0.75, 0.95, 0.99)
         .tags("type", type)
         .register(registry)
         .record(durationSec);
