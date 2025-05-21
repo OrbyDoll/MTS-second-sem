@@ -28,6 +28,7 @@ import java.util.List;
 public class UsersService {
   private final UsersRepository userRepository;
   private final KafkaProducerService kafkaProducerService;
+  private final MetricService metricService;
 
   @Transactional(propagation = Propagation.SUPPORTS, isolation = Isolation.READ_COMMITTED)
   @Cacheable("users")
@@ -39,7 +40,9 @@ public class UsersService {
     }
     Message auditMessage =
         new Message(0L, Instant.now(), Action.SELECT, "Запросили всех пользователей");
-    kafkaProducerService.sendMessage(auditMessage);
+    metricService.recordExecution("get users", () -> {
+      kafkaProducerService.sendMessage(auditMessage);
+    });
     return users;
   }
 
@@ -51,7 +54,9 @@ public class UsersService {
         userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
     Message auditMessage =
         new Message(userId, Instant.now(), Action.SELECT, "Запросили пользователя с ID: " + userId);
-    kafkaProducerService.sendMessage(auditMessage);
+    metricService.recordExecution("get user", () -> {
+      kafkaProducerService.sendMessage(auditMessage);
+    });
     return new UserGetResponse(desiredUser);
   }
 
@@ -62,7 +67,9 @@ public class UsersService {
     Message auditMessage =
         new Message(0L, Instant.now(), Action.INSERT,
             "Создание нового пользователя: " + user.toString());
-    kafkaProducerService.sendMessage(auditMessage);
+    metricService.recordExecution("create user", () -> {
+      kafkaProducerService.sendMessage(auditMessage);
+    });
     return userRepository.save(user).getId();
   }
 
@@ -78,7 +85,9 @@ public class UsersService {
       Message auditMessage = new Message(userId, Instant.now(),
           Action.UPDATE, "Обновление(put) пользователя с ID: " + userId + ". Данные обновления: " +
           user.toString());
-      kafkaProducerService.sendMessage(auditMessage);
+      metricService.recordExecution("update user", () -> {
+        kafkaProducerService.sendMessage(auditMessage);
+      });
       return new UserUpdateResponse(savedUser);
     }).orElseThrow(() -> new UserNotFoundException(userId));
   }
@@ -102,7 +111,9 @@ public class UsersService {
           Action.UPDATE,
           "Обновление(patch) пользователя с ID: " + userId + ". Данные обновления: " +
               user.toString());
-      kafkaProducerService.sendMessage(auditMessage);
+      metricService.recordExecution("update user", () -> {
+        kafkaProducerService.sendMessage(auditMessage);
+      });
       return new UserUpdateResponse(savedUser);
     }).orElseThrow(() -> new UserNotFoundException(userId));
   }
@@ -112,7 +123,9 @@ public class UsersService {
   public void deleteUser(Long userId) {
     Message auditMessage =
         new Message(userId, Instant.now(), Action.DELETE, "Удаляем пользователя с ID: " + userId);
-    kafkaProducerService.sendMessage(auditMessage);
+    metricService.recordExecution("delete user", () -> {
+      kafkaProducerService.sendMessage(auditMessage);
+    });
     log.info("Удаление пользователя с ID: {}", userId.toString());
     userRepository.deleteById(userId);
   }
